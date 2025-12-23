@@ -1,33 +1,33 @@
-const express = require("express");
-const app = express();
-const {adminAuth}= require("/.middleware/auth");
+const express = require("express")
+const connectDB = require("./config/database")
+const User = require("./model/user")
 
-const rh1 = (req, res, next) => {
-  console.log("route handler 1 called");
-  req.user = "Rahul";
-  next();
-};
+const app = express()
+app.use(express.json())
 
-const rh2 = (req, res, next) => {
-  console.log("route handler 2 called");
-  if (!req.user) {
-    next(new Error("User not found"));
-  } else {
-    next();
+app.post("/signup", async (req, res) => {
+  try {
+    const user = new User({
+      firstName: "Virat",
+      lastName: "Kohli",
+      email: "virat@kohli.com",
+      password: "virat@123"
+    })
+
+    await user.save()
+    res.send("User added successfully")
+  } catch (err) {
+    res.status(400).send("Error adding user")
   }
-};
+})
 
-const rh3 = (req, res) => {
-  console.log("route handler 3 called");
-  res.send("Hello " + req.user);
-};
-
-app.use("/user", [rh1, rh2, rh3]);
-
-app.use((err, req, res, next) => {
-  res.status(500).send(err.message);
-});
-
-app.listen(7777, () => {
-  console.log("server is successfully listening on port 7777");
-});
+connectDB()
+  .then(() => {
+    console.log("Database connection established")
+    app.listen(7777, () => {
+      console.log("Server is listening on port 7777")
+    })
+  })
+  .catch((err) => {
+    console.error("Database connection failed", err)
+  })
