@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+const {adminAuth}= require("/.middleware/auth");
 
 const rh1 = (req, res, next) => {
   console.log("route handler 1 called");
