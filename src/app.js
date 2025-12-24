@@ -6,14 +6,10 @@ const app = express()
 app.use(express.json())
 
 app.post("/signup", async (req, res) => {
-  try {
-    const user = new User({
-      firstName: "Virat",
-      lastName: "Kohli",
-      email: "virat@kohli.com",
-      password: "virat@123"
-    })
+  console.log(req.body)
 
+  try {
+    const user = new User(req.body)
     await user.save()
     res.send("User added successfully")
   } catch (err) {
