@@ -13,7 +13,7 @@ app.post("/signup", async (req, res) => {
   try {
     const user = new User(req.body)
     await user.save()
-    res.send("User added successfully")
+    res.status(201).send("User added successfully")
   } catch (err) {
     res.status(400).send("Error adding user")
   }
@@ -22,9 +22,22 @@ app.post("/signup", async (req, res) => {
 app.get("/feed", async (req, res) => {
   try {
     const users = await User.find()
-    res.json(users)
+    res.status(200).json(users)
   } catch (err) {
     res.status(500).send("Error fetching users")
+  }
+})
+
+app.patch("/users/:id", async (req, res) => {
+  try {
+    const updatedUser = await User.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    )
+    res.status(200).json(updatedUser)
+  } catch (err) {
+    res.status(400).send("Error updating user")
   }
 })
 
@@ -35,6 +48,5 @@ connectDB()
     })
   })
   .catch((err) => {
-    console.error("Failed to connect to DB:", err)
-    process.exit(1)
+    console.error("Database connection failed", err)
   })
