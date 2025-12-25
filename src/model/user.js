@@ -1,5 +1,6 @@
 const mongoose = require("mongoose")
 const bcrypt = require("bcryptjs")
+const validator = require("validator")
 
 const userSchema = new mongoose.Schema(
   {
@@ -24,14 +25,21 @@ const userSchema = new mongoose.Schema(
       unique: true,
       lowercase: true,
       trim: true,
-      match: [/.+\@.+\..+/, "Please fill a valid email address"]
+      match: [/.+\@.+\..+/, "Please fill a valid email address"],
+      validate: {
+        validator: (value) => validator.isEmail(value),
+        message: "Please enter a valid email address"
+      }
     },
     password: {
       type: String,
       required: true,
       minlength: 6,
-      select: false
-
+      select: false,
+      validate: {
+        validator: (value) => !value.toLowerCase().includes("password"),
+        message: "Password should not contain 'password'"
+      }
     },
     age: {
       type: Number,
