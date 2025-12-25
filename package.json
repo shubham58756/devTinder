@@ -1,22 +1,22 @@
 {
   "name": "devtinder",
   "version": "1.0.0",
-  "description": "tinder for dev",
-  "keywords": [
-    "nodejs",
-    "javascript"
-  ],
-  "license": "ISC",
+  "description": "Tinder for developers",
   "author": "Shubham Patel",
+  "license": "ISC",
   "type": "commonjs",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node app.js",
+    "dev": "nodemon app.js"
   },
   "dependencies": {
+    "express": "^4.19.2",
+    "mongoose": "^8.11.0",
     "bcryptjs": "^2.4.3",
-    "express": "^5.2.1",
-    "mongoose": "^9.0.2",
-    "validator": "^13.15.26"
+    "validator": "^13.11.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.3"
   }
 }
