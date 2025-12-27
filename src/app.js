@@ -3,28 +3,17 @@ const connectDB = require("./config/database")
 const User = require("./model/user")
 const { validateSignUpData } = require("./utils/validation")
 const bcrypt = require("bcryptjs")
+const cookieParser = require("cookie-parser")
+const jwt = require("jsonwebtoken")
+const { userAuth } = require("./middleware/auth")
 
 const app = express()
 app.use(express.json())
-
-const ALLOWED_UPDATES = [
-  "age",
-  "photoURL",
-  "about",
-  "skills",
-  "firstName",
-  "lastName",
-  "email",
-  "gender"
-]
-
-const isUpdateAllowed = (updates) => {
-  return updates.every((update) => ALLOWED_UPDATES.includes(update))
-}
+app.use(cookieParser())
 
 app.post("/signup", async (req, res) => {
   try {
-    validateSignUpData(req.body)
+    validateSignUpData(req)
 
     const { password, ...rest } = req.body
     const passwordHash = await bcrypt.hash(password, 10)
@@ -35,67 +24,54 @@ app.post("/signup", async (req, res) => {
     })
 
     await user.save()
-    const userObj = user.toObject()
-    delete userObj.password
-    res.status(201).json(userObj)
+    res.status(201).json(user)
   } catch (err) {
-    if (err.code === 11000) {
-      return res.status(409).send("Email already exists")
-    }
-    if (err.name === "ValidationError") {
-      return res.status(400).send(err.message)
-    }
-    res.status(500).send(err.message || "Error adding user")
+    if (err.code === 11000) return res.status(409).send("Email already exists")
+    res.status(500).send("Error adding user")
   }
 })
 
-app.patch("/signup/:id", async (req, res) => {
+app.post("/login", async (req, res) => {
   try {
-    const updates = Object.keys(req.body)
+    const { email, password } = req.body
 
-    if (!isUpdateAllowed(updates)) {
-      return res.status(400).send("Invalid updates!")
-    }
+    const user = await User.findOne({ email })
+    if (!user) return res.status(401).send("Invalid credentials")
 
-    // If password is being updated, hash it before the update
-    if (updates.includes("password")) {
-      req.body.password = await bcrypt.hash(req.body.password, 10)
-    }
 
-    const user = await User.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true, runValidators: true }
+    const isValid = await bcrypt.compare(password, user.password)
+    if (!isValid) return res.status(401).send("Invalid credentials")
+      
+
+    const token = jwt.sign(
+      { _id: user._id },
+      "DEV@Tinder$790",
+      { expiresIn: "7d" }
     )
 
-    if (!user) {
-      return res.status(404).send("User not found")
-    }
+    res.cookie("token", token, {
+      httpOnly: true
+      
+    })
 
     res.status(200).json(user)
   } catch (err) {
-    if (err.name === "CastError") {
-      return res.status(400).send("Invalid user ID")
-    }
-    res.status(500).send("Error updating user")
+    res.status(500).send("Login failed")
   }
 })
 
-// Add RESTful alias
-app.patch("/users/:id", async (req, res) => {
+app.get("/profile", userAuth, async (req, res) => {
   try {
-    const updates = Object.keys(req.body)
-    if (!isUpdateAllowed(updates)) return res.status(400).send("Invalid updates!")
-    if (updates.includes("password")) {
-      req.body.password = await bcrypt.hash(req.body.password, 10)
-    }
-    const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true })
-    if (!user) return res.status(404).send("User not found")
-    res.status(200).json(user)
+    res.json(req.user)
   } catch (err) {
-    if (err.name === "CastError") return res.status(400).send("Invalid user ID")
-    res.status(500).send("Error updating user")
+    res.status(500).send("Error fetching profile")
   }
+})
+
+app.post("/sendConnectionRequest", userAuth, async (req, res) => {
+  const user=req.user
+  console.log("sending connection request")
+  res.send("user.firstName+' sent connection request'");
 })
 
 connectDB()

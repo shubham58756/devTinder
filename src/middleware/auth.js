@@ -1,28 +1,28 @@
-const adminAuth = (req, res, next) => {
-  console.log("admin auth middleware called")
+const jwt = require("jsonwebtoken");
+const User = require("../model/user");
+const userAuth = async(req, res, next) => {
+//reade the tokern from cookies and find the user
 
-  const token = (req.headers.authorization || "").replace(/^Bearer\s+/i, "")
-  const isAdminAuthorized = token === "xyz"
-
-  if (!isAdminAuthorized) {
-    return res.status(401).send("unauthorized request")
+try{
+  const {token} = req.cookies;
+  if(!token) {
+    throw new Error ("Token is npt valid");
   }
-  next()
+ const decodedObj= await jwt.verify (token, "DEV@Tinder$790");
+ 
+ const {_id} = decodedObj;
+ const user = await User.findById(_id);
+ if(!user) {
+  throw new Error ("User does not exist");
+ }
+ req.user = user; 
+next();}
+catch (err) {
+  res.status(400).send("ERROR: "+ err.message);
+}
 }
 
-const userAuth = (req, res, next) => {
-  console.log("user auth middleware called")
-
-  const token = (req.headers.authorization || "").replace(/^Bearer\s+/i, "")
-  const isUserAuthorized = token === "xyz"
-
-  if (!isUserAuthorized) {
-    return res.status(401).send("unauthorized request")
-  }
-  next()
-}
-
-module.exports = {
+module.exports = { 
   adminAuth,
   userAuth
-}
+};

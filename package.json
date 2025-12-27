@@ -8,13 +8,14 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "dev": "nodemon app.js",
-    "autocommit": "node scripts/auto-commit.js"
+    "dev": "nodemon app.js"
   },
   "dependencies": {
-    "express": "^4.19.2",
-    "mongoose": "^8.11.0",
     "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.7",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^8.11.0",
     "validator": "^13.11.0"
   },
   "devDependencies": {
