@@ -1,7 +1,6 @@
 const mongoose = require("mongoose")
 const bcrypt = require("bcryptjs")
 const validator = require("validator")
-const bcrypt = require("bcryptjs");
 
 const userSchema = new mongoose.Schema(
   {
@@ -69,20 +68,11 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 )
 
-userSchema.methods.JWTtoken = async function() {
-
-  const User = this;
-  const token = await jwt.sign({ _id: this._id }, "DEV@Tinder$790", { expiresIn: '7d',
-
-   })
-  return token;
-};
-userSchema.method.validatePassword = async function(password) {
-  const user = this;
-  const passwordHash=user.password;
-  const isValid = await bcrypt.compare(password, passwordHash);
-  passwordHash
-  return isValid;
-} 
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next()
+  const salt = await bcrypt.genSalt(10)
+  this.password = await bcrypt.hash(this.password, salt)
+  next()
+})
 
 module.exports = mongoose.model("User", userSchema)
