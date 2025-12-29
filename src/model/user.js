@@ -1,78 +1,102 @@
-const mongoose = require("mongoose")
-const bcrypt = require("bcryptjs")
-const validator = require("validator")
+const mongoose = require('mongoose');
+const validator = require('validator');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 
 const userSchema = new mongoose.Schema(
   {
     firstName: {
       type: String,
       required: true,
-      unique: true,
-      trim: true,
-      minlength: 2
+      minLength: 4,
+      maxLength: 50,
     },
     lastName: {
       type: String,
-      type: String,
-      required: true,
-      unique: true,
-      trim: true,
-      minlength: 2
     },
-    email: {
+    emailId: {
       type: String,
+      lowercase: true,
       required: true,
       unique: true,
-      lowercase: true,
       trim: true,
-      match: [/.+\@.+\..+/, "Please fill a valid email address"],
-      validate: {
-        validator: (value) => validator.isEmail(value),
-        message: "Please enter a valid email address"
-      }
+      validate(value) {
+        if (!validator.isEmail(value)) {
+          throw new Error('Invalid email address: ' + value);
+        }
+      },
     },
     password: {
       type: String,
       required: true,
-      minlength: 6,
-      select: false,
-      validate: {
-        validator: (value) => !value.toLowerCase().includes("password"),
-        message: "Password should not contain 'password'"
-      }
+      validate(value) {
+        if (!validator.isStrongPassword(value)) {
+          throw new Error('Enter a Strong Password: ' + value);
+        }
+      },
     },
     age: {
       type: Number,
-      min: 18
+      min: 18,
     },
     gender: {
       type: String,
-      validate(value) {
-        if(!"male","female","other".includes(value.toLowerCase())) {
-          throw new Error("Invalid gender")
-        }
-      }
+      enum: {
+        values: ['male', 'female', 'other'],
+        message: `{VALUE} is not a valid gender type`,
+      },
+      // validate(value) {
+      //   if (!["male", "female", "others"].includes(value)) {
+      //     throw new Error("Gender data is not valid");
+      //   }
+      // },
     },
-    photoURL: {
+    isPremium: {
+      type: Boolean,
+      default: false,
+    },
+    membershipType: {
       type: String,
-      default: "abcd"
+    },
+    photoUrl: {
+      type: String,
+      default: 'https://geographyandyou.com/images/user-profile.png',
+      validate(value) {
+        if (!validator.isURL(value)) {
+          throw new Error('Invalid Photo URL: ' + value);
+        }
+      },
     },
     about: {
       type: String,
-      default: "This is the default value"
+      default: 'This is a default about of the user!',
     },
     skills: {
-      type: [String]
-    }
+      type: [String],
+    },
   },
-  { timestamps: true }
-)
+  {
+    timestamps: true,
+  }
+);
 
-userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next()
-  const salt = await bcrypt.genSalt(10)
-  this.password = await bcrypt.hash(this.password, salt)
-  next()
-})
+userSchema.methods.getJWT = async function () {
+  const user = this;
 
-module.exports = mongoose.model("User", userSchema)
+  const token = await jwt.sign({ _id: user._id }, 'DEV@Tinder$790', {
+    expiresIn: '7d',
+  });
+
+  return token;
+};
+
+userSchema.methods.validatePassword = async function (passwordInputByUser) {
+  const user = this;
+  const passwordHash = user.password;
+
+  const isPasswordValid = await bcrypt.compare(passwordInputByUser, passwordHash);
+
+  return isPasswordValid;
+};
+
+module.exports = mongoose.model('User', userSchema);
