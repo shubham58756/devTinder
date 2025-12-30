@@ -1,24 +1,23 @@
-*devTinder
-#auth router
-  POST/signup
-  POST login
-  POST logout
+# DevTinder APIs
 
-#profile router
-  PATCH profile-view
-  PATCH  profile-edit
-  PATCH profile(patch password)
+## authRouter
+- POST /signup
+- POST /login
+- POST /logout
 
-#connection request router
-  POST request /send/intrested/:userid
-  POST request/send/ignore/:userid
-  POST /request/reviw/acepted/:request
-  POST /request/reviw/rejectes/:request
- 
-#userRouter
- GET user/connections
- GET user/request/recived
- GET /feed -get you to the profile of other user on platfron
+## profileRouter
+- GET /profile/view
+- PATCH /profile/edit
+- PATCH /profile/password // Forgot password API
 
-STATUS/ ignore ,intrested, accepted,rejected
+## connectionRequestRouter
+- POST /request/send/:status/:userId 
+- POST /request/review/:status/:requestId
 
+## userRouter
+- GET /user/requests/received
+- GET /user/connections
+- GET /user/feed - Gets you the profiles of other users on platform
+
+
+Status: ignored, interested, accepeted, rejected
