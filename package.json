@@ -29,7 +29,9 @@
     "socket.io": "^4.8.1",
     "validator": "^13.12.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "nodemon": "^3.1.11"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/shubham58756/devTinder.git"
