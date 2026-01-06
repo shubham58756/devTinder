@@ -4,11 +4,10 @@
   "description": "tinder for devs",
   "main": "index.js",
   "scripts": {
-  "start": "node src/app.js",
-  "dev": "nodemon src/app.js",
-  "format": "prettier --write \"src/**/*.{js,jsx,json,md}\""
-},
-
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js",
+    "format": "prettier --write \"src/**/*.{js,jsx,json,md}\""
+  },
   "keywords": [
     "nodejs",
     "javascript"
