@@ -28,5 +28,15 @@
     "razorpay": "^2.9.5",
     "socket.io": "^4.8.1",
     "validator": "^13.12.0"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shubham58756/devTinder.git"
+  },
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/shubham58756/devTinder/issues"
+  },
+  "homepage": "https://github.com/shubham58756/devTinder#readme"
 }
