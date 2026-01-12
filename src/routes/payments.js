@@ -8,6 +8,7 @@ const {membershipAmount}=require("../utils/constants");
 const { validate } = require("../model/user");
 const { validateWebhookSignature } = require("razorpay/dist/utils/razorpay-utils");
 const { default: webhooks } = require("razorpay/dist/types/webhooks");
+const user = require("../model/user");
 
 paymentRouter.post("/payment/create",userAuth, async(req,res)=>{
     try{
@@ -87,4 +88,21 @@ paymentRouter.post("/payment/webhook", async(req,res)=>{
         return res.status(500).json({msg:err.message});
     }
 })
+paymentRouter.get("/premium/verify", userAuth, async (req, res) => {
+  const user = req.user.toJSON();
+  console.log(user);
+
+  if (user.isPremium) {
+    return res.json({
+      isPremium: true,user
+     
+    });
+  }
+
+  return res.json({ isPremium: false ,user
+
+   });
+});
+
+
 module.exports=paymentRouter;
