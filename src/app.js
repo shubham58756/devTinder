@@ -5,15 +5,9 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const http = require("http");
 
-
 require("dotenv").config();
 
-
-try {
-  require("./utils/cronjob");
-} catch (err) {
-  console.warn("No cronjob module found, skipping cronjob.");
-}
+require("./utils/cronjob");
 
 app.use(
   cors({
@@ -28,39 +22,19 @@ const authRouter = require("./routes/auth");
 const profileRouter = require("./routes/profile");
 const requestRouter = require("./routes/request");
 const userRouter = require("./routes/user");
-let paymentRouter;
-try {
-  paymentRouter = require("./routes/payment");
-} catch (err) {
-  paymentRouter = null;
-  console.warn("./routes/payment not found, skipping payment routes.");
-}
-
-let initializeSocket;
-try {
-  initializeSocket = require("./utils/socket");
-} catch (err) {
-  initializeSocket = null;
-  console.warn("./utils/socket not found, skipping socket initialization.");
-}
-
-let chatRouter;
-try {
-  chatRouter = require("./routes/chat");
-} catch (err) {
-  chatRouter = null;
-  console.warn("./routes/chat not found, skipping chat routes.");
-}
+const paymentRouter = require("./routes/payment");
+const initializeSocket = require("./utils/socket");
+const chatRouter = require("./routes/chat");
 
 app.use("/", authRouter);
 app.use("/", profileRouter);
 app.use("/", requestRouter);
 app.use("/", userRouter);
-if (paymentRouter) app.use("/", paymentRouter);
-if (chatRouter) app.use("/", chatRouter);
+app.use("/", paymentRouter);
+app.use("/", chatRouter);
 
 const server = http.createServer(app);
-if (initializeSocket) initializeSocket(server);
+initializeSocket(server);
 
 connectDB()
   .then(() => {
